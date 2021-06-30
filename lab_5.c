@@ -3,11 +3,14 @@
 оставшиеся элементы включаются в полученную упорядоченную последовательность методом погружения.*/
 #include <stdio.h>
 #include <locale.h>
-
 #define N 10
 
 void ShowArray(int A[], int n);
 void MaxPosl(int A[], int A2[], int n);
+//void CopyArray(int A[], int A2[], int n);
+void MaxPosl(int A[], int A2[], int n);
+void LazySort(int in[], int out[], int n);
+
 int main()
 {
 	setlocale(LC_ALL, "");
@@ -15,8 +18,11 @@ int main()
 	int Arr2[N];
 	printf("Входной массив Arr: \n");
 	ShowArray(Arr, N);
-
-	MaxPosl(Arr, Arr2, N);
+	/*CopyArray(Arr, Arr2, N);
+	ShowArray(Arr2, N);*/
+	//MaxPosl(Arr, Arr2, N);
+	LazySort(Arr, Arr2, N);
+	ShowArray(Arr2, N);
 
 	return 0;
 }
@@ -61,7 +67,25 @@ void MaxPosl(int A[], int A2[], int n)
 	{
 		printf("%d ", A[i]);
 	}
-
 }
 
-
+//void CopyArray(int A[], int A2[], int n)
+//{
+//	int p = 0;
+//	for (int i = 0; i < n; i++)
+//	{
+//		A2[p] = A[i];
+//		p++;
+//	}
+//}
+void LazySort(int in[], int out[], int n)
+{
+	int i, j = 0, c = in[0]=out[0]; //временная переменная для отбора в in[]
+	for (i = 1; i < n; i++)
+	{
+		if (c < in[i])
+		{
+			c = in[i], out[j++] = in[i], in[i]=-1;
+		}
+	}
+}
