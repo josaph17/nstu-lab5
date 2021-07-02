@@ -3,27 +3,26 @@
 оставшиес€ элементы включаютс€ в полученную упор€доченную последовательность методом погружени€.*/
 #include <stdio.h>
 #include <locale.h>
+#include<stdlib.h>
 #define N 10
 
 void ShowArray(int A[], int n);
-void MaxPosl(int A[], int A2[], int n);
-//void CopyArray(int A[], int A2[], int n);
-void MaxPosl(int A[], int A2[], int n);
-void LazySort(int in[], int out[], int n);
+void newWay(int in[], int out[], int n);
+void ShiftL(int S[], int pos, int n); /*сдвиг хвоста влево*/
+
 
 int main()
 {
 	setlocale(LC_ALL, "");
 	int Arr[N] = { 30, 11,25,1,4,0,8,3,2, 5 };
+	//int Arr[N] = { 1, 2,3,4,5,6,7,8,9,10 };
 	int Arr2[N];
 	printf("¬ходной массив Arr: \n");
 	ShowArray(Arr, N);
-	/*CopyArray(Arr, Arr2, N);
-	ShowArray(Arr2, N);*/
-	//MaxPosl(Arr, Arr2, N);
-	LazySort(Arr, Arr2, N);
+	newWay(Arr, Arr2,  N);
+	printf("¬ыходной массив Arr2: \n");
 	ShowArray(Arr2, N);
-
+	
 	return 0;
 }
 
@@ -37,55 +36,27 @@ void ShowArray(int A[], int n)
 	printf("\n");
 }
 
-void MaxPosl(int A[], int A2[], int n)
+void newWay(int in[], int out[], int n)
 {
-	int max, k, num, x;
-	//max - длина наиболее возр. посл-ти
-	/*с i-эл-а начинаетс€ наиб длинна€ возр. послед-ть, если он первцый то перед ним есть и второй эл-т*/
+	out[0] = INT_MIN; //массив максимально длинной последовательности
+	for (int i = 1; i <= n; ++i) /*<=n , т.к. 0-ой эл-т ставим INT_MAX , т.е. +1 эл-т*/
+		out[i] = INT_MAX; /*заполн€ем массив, эл-т на который оканчиваетс€ максимально длинна€ последовательность*/
 
-	k = max = 0; /*сама€ маленька€ последовательность это пуста€ последовательность*/
-	for (int i = 0; i < N - 1; i++) /*обходим массив*/
-	{
-		if (A[i + 1] > A[i]) /*если следующее число больше предыдущего*/
-		{
-			k++; /*длина наиб длинной послд-и, ихменилась, стала на 1 больше*/
-		}
-		else
-			k = 0;
+	for (int i = 0; i < n; i++)
+		for (int j = 1; j <= n; j++)
+			if (out[j - 1] < in[i] && in[i] < out[j])
+				out[j] = in[i];
 
-		if (k > max) //max - макс 
-		{
-			max = k;
-			num = i + 1;
-		}
-	}
-	max++;
-	x = num - max + 1;
-	printf("Ќаибольша€ возрастающа€ подпоследовательность: \n");
+	ShiftL(out, 1, 1); /*сдвиг влево, чтобы убрать 1-ое значение INT_MIN*/
+ }	
 
-	for (int i = x; i < max + x; i++)
-	{
-		printf("%d ", A[i]);
-	}
-}
-
-//void CopyArray(int A[], int A2[], int n)
-//{
-//	int p = 0;
-//	for (int i = 0; i < n; i++)
-//	{
-//		A2[p] = A[i];
-//		p++;
-//	}
-//}
-void LazySort(int in[], int out[], int n)
+void ShiftL(int S[], int pos, int n)
 {
-	int i, j = 0, c = in[0]=out[0]; //временна€ переменна€ дл€ отбора в in[]
-	for (i = 1; i < n; i++)
+	int i;
+
+	for (i = pos; S[i] <=N+1; i++)
 	{
-		if (c < in[i])
-		{
-			c = in[i], out[j++] = in[i], in[i]=-1;
-		}
+		S[i - n] = S[i];
 	}
+	S[i - n] = S[i];
 }
