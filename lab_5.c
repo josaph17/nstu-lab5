@@ -4,27 +4,25 @@
 #include <stdio.h>
 #include <locale.h>
 #include<stdlib.h>
-#define N 10
+#include<stdbool.h>
+#define N 8
 
 void ShowArray(int A[], int n);
-void newWay(int in[], int out[], int n);
-void ShiftR(char S[], int pos, int n);
-void ShiftL(int S[], int pos, int n);
-
+int	F7(int in[], int n);
+int habrLength(int in[], int n);
+int ceilIndex(int subsequence[], int startLeft, int startRight, int key);
 
 int main()
 {
 	setlocale(LC_ALL, "");
 	//int Arr[N] = { 30, 11,25,1,4,0,8,3,2, 5 };
-	int Arr[N] = { 30,11,25,1,6,26,20,5,7,3 };
-	//int Arr[N] = { 1, 2,3,4,5,6,7,8,9,10 };
-	int Arr2[N];
+	int Arr[N] = { 5, 10,6,12,3,24,7,8};
+	//int Arr[N] = { 0, 0,25,1,25,0,8,25,0, 0 };
+	//int Arr[N] = {0,8,3,2,5 };
 	printf("First array Arr: \n");
 	ShowArray(Arr, N);
-	newWay(Arr, Arr2,  N);
-	printf("Second array Arr2: \n");
-	ShowArray(Arr2, N);
-	
+    int length = habrLength(Arr, N);
+    printf("ƒлина максимально длинной послед-и: %d\n", length);	
 	return 0;
 }
 
@@ -38,36 +36,104 @@ void ShowArray(int A[], int n)
 	printf("\n");
 }
 
-void newWay(int in[], int out[], int n)
+int	F7(int in[], int n)
 {
-	out[0] = INT_MIN; //max sequence
-	for (int i = 1; i <n+1; i++) /*<=n , +1 element*/
-		out[i] = INT_MAX; /*follow array, element which finished max sequence*/
-
-	for (int i = 0; i < n; i++)
-		for (int j = 1; j < n+1; j++) /*running in out[] array*/
-			if (out[j - 1] < in[i] && in[i] < out[j])
-				out[j] = in[i];
-
-	ShiftL(out, 1, 1); /*act to delete INT_MIN*/
- }	
-
-void ShiftR(char S[], int pos, int n)
-{
-	int i = N-1;
-
-	for (; i >= pos; i--)
+	int i, j, m, s, t;
+	i = 0, t=0;
+	int digit = in[i];
+	for (s = 1; i < n - 1; i++)
 	{
-		S[i + n] = S[i];
+		for (j = i + 1, m = 1; j < n; j++)
+			if (digit < in[j])
+				{
+				t = j;
+				digit = in[j];
+				m++;
+				}
+		if (m > s)
+			s = m;
 	}
+	return s;
 }
-void ShiftL(int S[], int pos, int n)
-{
-	int i;
 
-	for (i = pos; S[i] <=N+1; i++)
-	{
-		S[i - n] = S[i];
-	}
-	S[i - n] = S[i];
+int habrLength(int in[], int n) 
+{
+    /*≈сли элемент больше максимального элемента в массиве, добавл€ем элемент в конец, 
+    когда следующий элемент меньше максимального в этом массиве*/
+    if (n <= 1) 
+        return 1;
+
+    int lis_length = 1; /*было -1 , но минимальна€ длина полседовательности 1*/
+
+    int minElementForLength[N];
+    int indexes[N];
+
+    for (int i = 0; i < n; ++i) 
+        minElementForLength[i] = INT_MAX;
+
+    minElementForLength[0] = in[0];
+    indexes[0] = 1; //было 0, длина минимальной послед 1
+
+    for (int i = 1; i < n; ++i) 
+    {
+        indexes[i] = ceilIndex(minElementForLength, 0, i, in[i]);
+
+        if (lis_length < indexes[i]) 
+            lis_length = indexes[i];
+    }
+    printf("ћассив indexes равен: \n");
+    ShowArray(indexes, N);  
+    printf("ћассив  minElementForLength равен: \n");
+    ShowArray(minElementForLength, N);
+
+       return lis_length;
+}
+
+int ceilIndex(int minElementForLength[], int startLeft, int startRight, int key) 
+/*ф-€ котора€ возвращает максимальное кол-во эл-в, котрые могу сто€т перед этим числом по возрастанию*/
+{
+
+    int mid = 0;
+    int left = startLeft; /*индекс мин эл-а массива*/
+    int right = startRight; /*индекс максимального элемента масива*/
+    int ceilIndex = 0;
+    bool ceilIndexFound = false;
+
+    for (mid = (left + right) / 2; left <= right && !ceilIndexFound; mid = (left + right) / 2) 
+    {
+        if (minElementForLength[mid] > key) 
+            right = mid - 1;
+
+        else if (minElementForLength[mid] == key) 
+        {
+            ceilIndex = mid;
+            ceilIndexFound = true;
+        }
+        else if (mid + 1 <= right && minElementForLength[mid + 1] >= key) 
+        {
+            minElementForLength[mid + 1] = key;
+            ceilIndex = mid + 1;
+            ceilIndexFound = true;
+        }
+        else 
+        {
+            left = mid + 1;
+        }
+    }
+
+    if (!ceilIndexFound) 
+    {
+        if (mid == left)
+        {
+            minElementForLength[mid] = key;
+            ceilIndex = mid;
+        }
+        else 
+        {
+            minElementForLength[mid + 1] = key;
+            ceilIndex = mid + 1;
+        }
+    }
+
+    return ceilIndex+1; /*было без +1, но если какой-то эл-т больше предыдущего то прибавл€ем+1 */
 }
